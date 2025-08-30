@@ -177,3 +177,36 @@ resource "aws_security_group_rule" "karpenter_egress_all" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.karpenter.id
 }
+
+# Allow EKS control plane to communicate with worker nodes on kubelet port
+resource "aws_security_group_rule" "karpenter_ingress_kubelet" {
+  type              = "ingress"
+  from_port         = 10250
+  to_port           = 10250
+  protocol          = "tcp"
+  cidr_blocks       = ["10.0.0.0/16"]  # VPC CIDR
+  security_group_id = aws_security_group.karpenter.id
+  description       = "Allow kubelet communication from EKS control plane"
+}
+
+# Allow EKS control plane to communicate with worker nodes on HTTPS port
+resource "aws_security_group_rule" "karpenter_ingress_https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["10.0.0.0/16"]  # VPC CIDR
+  security_group_id = aws_security_group.karpenter.id
+  description       = "Allow HTTPS communication from EKS control plane"
+}
+
+# Allow worker nodes to communicate with EKS control plane
+resource "aws_security_group_rule" "karpenter_ingress_cluster_api" {
+  type              = "ingress"
+  from_port         = 1025
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks       = ["10.0.0.0/16"]  # VPC CIDR
+  security_group_id = aws_security_group.karpenter.id
+  description       = "Allow worker nodes to communicate with cluster API server"
+}
