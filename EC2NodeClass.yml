@@ -13,3 +13,8 @@ spec:
         karpenter.sh/discovery: "eks-cluster"
   amiSelectorTerms:
     - alias: "al2023@latest"
+  metadataOptions:
+    httpEndpoint: enabled
+    httpProtocolIPv6: disabled
+    httpPutResponseHopLimit: 2
+    httpTokens: required
