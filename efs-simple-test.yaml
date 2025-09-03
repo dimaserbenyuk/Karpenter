@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-simple-test
+  namespace: efs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: efs-simple-pod
+  namespace: efs
+spec:
+  containers:
+  - name: test-container
+    image: busybox:1.36
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Writing to EFS..." > /mnt/efs/simple-test.txt
+        cat /mnt/efs/simple-test.txt
+        ls -la /mnt/efs/
+        sleep 300
+    volumeMounts:
+    - name: efs-storage
+      mountPath: /mnt/efs
+  volumes:
+  - name: efs-storage
+    persistentVolumeClaim:
+      claimName: efs-simple-test
+  nodeSelector:
+    karpenter.sh/nodepool: arm-pool
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: efs-simple-test-2
+  namespace: efs
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: efs-sc
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: efs-simple-pod-2
+  namespace: efs
+spec:
+  containers:
+  - name: test-container
+    image: busybox:1.36
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Writing to EFS..." > /mnt/efs/simple-test.txt
+        cat /mnt/efs/simple-test.txt
+        ls -la /mnt/efs/
+        sleep 300
+    volumeMounts:
+    - name: efs-storage
+      mountPath: /mnt/efs
+  volumes:
+  - name: efs-storage
+    persistentVolumeClaim:
+      claimName: efs-simple-test-2
+  nodeSelector:
+    karpenter.sh/nodepool: arm-pool
